@@ -1,0 +1,1 @@
+in this location will be stored frontend pages css and js files.
