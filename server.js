@@ -144,4 +144,55 @@ app.get('/get_lectures_for', (req, res) => {
     });
 });
 
+app.get('/get_random', (req, res) => {
+    const amount = 10;
+    const audioDir = path.join(__dirname, 'media_files', 'audio');
+
+    function getAllMp3Files(dir) {
+        let results = [];
+        const list = fs.readdirSync(dir, { withFileTypes: true });
+        list.forEach((file) => {
+            const filePath = path.join(dir, file.name);
+            if (file.isDirectory()) {
+                results = results.concat(getAllMp3Files(filePath));
+            } else if (file.isFile() && path.extname(file.name) === '.mp3') {
+                results.push({
+                    name: file.name,
+                    path: filePath.replace(__dirname, '').replace(/\\/g, '/')
+                });
+            }
+        });
+        return results;
+    }
+
+    try {
+        const allMp3Files = getAllMp3Files(audioDir);
+        const randomFiles = allMp3Files.sort(() => 0.5 - Math.random()).slice(0, amount);
+        res.json(randomFiles);
+    } catch (err) {
+        console.error("Error scanning audio directory:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get('/get_books', (_, res) => {
+    const booksDir = path.join(__dirname, 'media_files', 'books');
+
+    fs.readdir(booksDir, { withFileTypes: true }, (err, files) => {
+        if (err) {
+            console.error("Error reading books directory:", err);
+            return res.status(500).send("Internal Server Error");
+        }
+
+        const pdfFiles = files
+            .filter(dirent => dirent.isFile() && path.extname(dirent.name) === '.pdf')
+            .map(dirent => ({
+                name: dirent.name,
+                path: path.join('media_files', 'books', dirent.name)
+            }));
+
+        res.json(pdfFiles);
+    });
+});
+
 //------------------------------- EsSelqm new frontend functions ---------------------------------
