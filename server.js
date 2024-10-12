@@ -163,7 +163,6 @@ app.get('/get_lectures_for', (req, res) => {
             .map(async dirent => {
             const filePath = path.join('media_files', 'audio', lectorName, dirent.name);
             const mp3Data = await getMp3Data(filePath);
-            console.log(mp3Data);
             return {
                 name: dirent.name,
                 path: filePath,
@@ -232,4 +231,23 @@ app.get('/get_books', (_, res) => {
     });
 });
 
+app.get('/get_mp3_data', async (req, res) => {
+    const filePath = req.query.filePath;
+    if (!filePath) {
+        return res.status(400).send("File path is required");
+    }
+
+    const fullPath = path.join(__dirname, filePath);
+    if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
+        return res.status(404).send("File not found");
+    }
+
+    try {
+        const mp3Data = await getMp3Data(fullPath);
+        res.json(mp3Data);
+    } catch (err) {
+        console.error("Error reading MP3 data:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
 //------------------------------- EsSelqm new frontend functions ---------------------------------

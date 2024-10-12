@@ -191,18 +191,23 @@ function generatePDFBoxes(pdfFiles) {
         const pdfBox = document.createElement('div');
         pdfBox.classList.add('pdf-box');
 
-        const thumbnail = document.createElement('img');
-        thumbnail.src = `data:image/png;base64,${pdf.thumbnail}`;
-        thumbnail.alt = `${pdf.name} thumbnail`;
-        pdfBox.appendChild(thumbnail);
+        //const thumbnail = document.createElement('img');
+        //if (pdf.data.image) {
+        //    thumbnail.src = `data:image/png;base64,${pdf.data.image}`;
+        //} else {
+        //    thumbnail.src = 'default-thumbnail.png'; // Fallback image if pdf.data.image is not available
+        //}
+        //thumbnail.alt = `${pdf.title} thumbnail`;
+        //pdfBox.appendChild(thumbnail);
 
-        const name = document.createElement('h3');
-        name.textContent = pdf.name;
-        pdfBox.appendChild(name);
+        const titleLink = document.createElement('a');
+        titleLink.href = pdf.path;
+        titleLink.textContent = pdf.name;
+        pdfBox.appendChild(titleLink);
 
-        const size = document.createElement('p');
-        size.textContent = `Size: ${formatSize(pdf.size)}`;
-        pdfBox.appendChild(size);
+        //const author = document.createElement('p');
+        //author.textContent = `Author: ${pdf.path}`;
+        //pdfBox.appendChild(author);
 
         container.appendChild(pdfBox);
     });
@@ -227,6 +232,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const audioFile = urlParams.get('file');
     if (audioFile) {
+        fetch(`${API_ADDRESS}get_mp3_data?filePath=${encodeURIComponent(audioFile)}`)
+            .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch MP3 data');
+            }
+            return response.json();
+            })
+            .then(data => {
+            console.log(data);
+            //TODO: previe on player image and some data if it useful
+            })
+            .catch(error => {
+            console.error('Error:', error);
+            });
+
         const audioSource = document.querySelector('audio source');
         audioSource.src = audioFile;
         const audioPlayer = document.querySelector('audio');
