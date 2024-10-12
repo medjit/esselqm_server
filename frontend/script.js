@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
         getRandom();
     }
 
+    if (window.location.pathname.endsWith('audioplayer.html')) {
+        getRandom();
+    }
+
     if (window.location.pathname.endsWith('books.html')) {
         getBooks();
     }
@@ -65,6 +69,10 @@ function generateFileBoxes(files) {
         const size = document.createElement('p');
         size.textContent = `Size: ${formatSize(file.size)}`;
         fileBox.appendChild(size);
+
+        fileBox.addEventListener('click', () => {
+            window.location.href = `audioplayer.html?file=${encodeURIComponent(file.path)}`;
+        });
 
         container.appendChild(fileBox);
     });
@@ -200,3 +208,31 @@ async function getBooks() {
         console.error('Error:', error);
     }
 }
+
+//================= Audio Player ================
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const audioFile = urlParams.get('file');
+    if (audioFile) {
+        const audioSource = document.querySelector('audio source');
+        audioSource.src = audioFile;
+        const audioPlayer = document.querySelector('audio');
+        audioPlayer.autoplay = true;
+        audioPlayer.load();
+        audioPlayer.play();
+
+        // Throttle requests to the server
+        let lastRequestTime = 0;
+        const throttleInterval = 1000; // 1 second
+
+        audioPlayer.ontimeupdate = function() {
+            const currentTime = Date.now();
+
+            if (currentTime - lastRequestTime > throttleInterval) {
+                // Only send a request if more than 1 second has passed
+                console.log("Send request to server now...");
+                lastRequestTime = currentTime;
+            }
+        };
+    }
+});
