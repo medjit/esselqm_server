@@ -18,7 +18,7 @@ document.getElementById('theme-toggle').addEventListener('click', function() {
 
 async function checkAPIStatus() {
     try {
-        const response = await fetch(API_DDRESS);
+        const response = await fetch(API_ADDRESS);
         if (!response.ok) {
             throw new Error('API not accessible');
         }
