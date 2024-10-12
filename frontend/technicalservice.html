@@ -77,16 +77,17 @@
         <li><a href="/assets/114. СУРА ХОРАТА (АН-НАС) - Мишари Рашид Ал Афаси.mp3">114. СУРА ХОРАТА (АН-НАС) - Мишари Рашид Ал Афаси</a></li>
     </ul>
     <script>
-        function checkApiStatus() {
-            fetch('/api/status')
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/';
-                    }
-                })
-                .catch(error => {
-                    console.error('API check failed:', error);
-                });
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(API_ADDRESS);
+                if (response.ok) {
+                    window.location.href = 'https://api.esselqm.com/';
+                } else {
+                    throw new Error('API not accessible');
+                }
+            } catch (error) {
+                window.location.href = 'technicalservice.html';
+            }
         }
 
         setInterval(checkApiStatus, 60000); // Check every 60 seconds

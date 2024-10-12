@@ -1,0 +1,160 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+#hamburger {
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.search-container input[type="text"] {
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+}
+
+.search-container button {
+    padding: 5px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+}
+
+.search-container button:hover {
+    background-color: #777;
+}
+
+#sidebar {
+    width: 200px;
+    background-color: #f4f4f4;
+    height: calc(100vh - 50px); /* Adjust based on header height */
+    position: absolute;
+    top: 50px; /* Adjust based on header height */
+    left: 0;
+    padding-top: 10px;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+    z-index: 999; /* Ensure it is above the main content */
+}
+
+#sidebar.show {
+    transform: translateX(0);
+}
+
+#sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#sidebar ul li {
+    margin: 10px 0;
+}
+
+#sidebar ul li a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 18px;
+}
+
+#sidebar .quote {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    font-size: 14px;
+    text-align: center;
+}
+
+main {
+    padding: 70px 20px 20px 20px; /* Adjust based on header height */
+    flex-grow: 1;
+    transition: margin-left 0.3s ease;
+}
+
+body.light-theme {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.dark-theme {
+    background-color: #808080; /* Changed from black to grey */
+    color: #ffffff;
+}
+
+body.light-theme #sidebar {
+    background-color: #f4f4f4;
+    color: #000000;
+}
+
+body.dark-theme #sidebar {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#theme-toggle {
+    margin: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* Styles for folder and file boxes */
+.container {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center; /* Center the grid items */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid layout */
+}
+
+.folder-box, .file-box {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 250px; /* Set a maximum width for the boxes */
+    width: 100%; /* Ensure the boxes take up the full width within the max-width */
+}
+
+.folder-image, .file-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.folder-info, .file-info {
+    margin-top: 10px;
+}
