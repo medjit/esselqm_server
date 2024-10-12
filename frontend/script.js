@@ -30,6 +30,13 @@ async function checkAPIStatus() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    //TODO: search not working
+    const searchContainer = document.querySelector('.search-container');
+    const searchInput = searchContainer.querySelector('input');
+    const searchButton = searchContainer.querySelector('button');
+    searchInput.disabled = true;
+    searchButton.disabled = true;
+    
     checkAPIStatus();
 
     if (window.location.pathname.endsWith('lectors.html')) {
@@ -51,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function generateFileBoxes(files) {
     const container = document.getElementById('main-content');
-    container.innerHTML = ''; // Clear any existing content
+    //container.innerHTML = ''; // Clear any existing content
 
     files.forEach(file => {
         const fileBox = document.createElement('div');
@@ -108,7 +115,7 @@ async function getRandom() {
 
 function generateFolderBoxes(folders) {
     const container = document.getElementById('main-content');
-    container.innerHTML = ''; // Clear any existing content
+    //container.innerHTML = ''; // Clear any existing content
 
     folders.forEach(folder => {
         const folderBox = document.createElement('div');
@@ -185,7 +192,7 @@ async function getLectors() {
 //================== Books ===================
 function generatePDFBoxes(pdfFiles) {
     const container = document.getElementById('main-content');
-    container.innerHTML = ''; // Clear any existing content
+    //container.innerHTML = ''; // Clear any existing content
 
     pdfFiles.forEach(pdf => {
         const pdfBox = document.createElement('div');
@@ -267,5 +274,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastRequestTime = currentTime;
             }
         };
+    }
+});
+
+//================= search ==================
+document.querySelector('.search-container button').addEventListener('click', async function() {
+    const searchText = document.querySelector('.search-container input').value;
+    if (searchText.trim() === '') {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_ADDRESS}search?query=${encodeURIComponent(searchText)}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch search results');
+        }
+        const searchResults = await response.json();
+        console.log(searchResults);
+        const mp3Files = searchResults.filter(result => result.type === 'mp3');
+        const pdfFiles = searchResults.filter(result => result.type === 'pdf');
+        const container = document.getElementById('main-content');
+        container.innerHTML = ''; // Clear any existing content
+        generateFileBoxes(mp3Files);
+        generatePDFBoxes(pdfFiles);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+document.querySelector('.search-container input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        document.querySelector('.search-container button').click();
     }
 });

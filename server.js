@@ -250,4 +250,54 @@ app.get('/get_mp3_data', async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+app.get('/search', (req, res) => {
+    const query = req.query.query;
+    if (!query) {
+        return res.status(400).send("Query parameter is required");
+    }
+
+    const searchDir = path.join(__dirname, 'media_files');
+
+    async function searchFiles(dir, query) {
+        let results = [];
+        const list = fs.readdirSync(dir, { withFileTypes: true });
+        await Promise.all(list.map(async (file) => {
+            const filePath = path.join(dir, file.name);
+            if (file.isDirectory()) {
+                results = results.concat(await searchFiles(filePath, query));
+            } else if (file.isFile() && (path.extname(file.name) === '.mp3' || path.extname(file.name) === '.pdf')) {
+                if (file.name.toLowerCase().includes(query.toLowerCase())) {
+                    if (path.extname(file.name) === '.mp3') {
+                        const fileData = {
+                            name: file.name,
+                            path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
+                            data: await getMp3Data(filePath)
+                        };
+                        results.push(fileData);
+                    } else if (path.extname(file.name) === '.pdf') {
+                        const fileData = {
+                            name: file.name,
+                            path: filePath.replace(__dirname, '').replace(/\\/g, '/')
+                        };
+                        results.push(fileData);
+                    }
+                }
+            }
+        }));
+        return results;
+    }
+
+    try {
+        searchFiles(searchDir, query).then(foundFiles => {
+            res.json(foundFiles);
+        }).catch(err => {
+            console.error("Error searching files:", err);
+            res.status(500).send("Internal Server Error");
+        });
+    } catch (err) {
+        console.error("Error searching files:", err);
+        res.status(500).send("Internal Server Error");
+    }
+});
 //------------------------------- EsSelqm new frontend functions ---------------------------------
