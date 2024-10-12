@@ -27,6 +27,113 @@ async function checkAPIStatus() {
     }
 }
 
+function generateFolderBoxes(folders) {
+    const container = document.getElementById('main-content');
+    container.innerHTML = ''; // Clear any existing content
+
+    folders.forEach(folder => {
+        const folderBox = document.createElement('div');
+        folderBox.classList.add('folder-box');
+
+        const thumbnail = document.createElement('img');
+        thumbnail.src = `data:image/png;base64,${folder.thumbnail}`;
+        thumbnail.alt = `${folder.name} thumbnail`;
+        folderBox.appendChild(thumbnail);
+
+        const name = document.createElement('h3');
+        name.textContent = folder.name;
+        folderBox.appendChild(name);
+
+        //const path = document.createElement('a');
+        //path.href = folder.path;
+        //path.textContent = folder.path;
+        //folderBox.appendChild(path);
+
+        const fileCount = document.createElement('p');
+        fileCount.textContent = `Files: ${folder.fileCount}`;
+        folderBox.appendChild(fileCount);
+
+        const size = document.createElement('p');
+        size.textContent = `Size: ${formatSize(folder.size)}`;
+        folderBox.appendChild(size);
+
+        // Add click event listener to folderBox
+        folderBox.addEventListener('click', () => {
+            getLecturesForLector(folder.name);
+        });
+
+        container.appendChild(folderBox);
+    });
+}
+
+function generateFileBoxes(files) {
+    const container = document.getElementById('main-content');
+    container.innerHTML = ''; // Clear any existing content
+
+    files.forEach(file => {
+        const fileBox = document.createElement('div');
+        fileBox.classList.add('file-box');
+
+        const thumbnail = document.createElement('img');
+        thumbnail.src = `data:image/png;base64,${file.thumbnail}`;
+        thumbnail.alt = `${file.name} thumbnail`;
+        fileBox.appendChild(thumbnail);
+
+        const name = document.createElement('h3');
+        name.textContent = file.name;
+        fileBox.appendChild(name);
+
+        const size = document.createElement('p');
+        size.textContent = `Size: ${formatSize(file.size)}`;
+        fileBox.appendChild(size);
+
+        container.appendChild(fileBox);
+    });
+}
+
+
+function formatSize(bytes) {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Byte';
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+}
+
+async function getLecturesForLector(lectorName) {
+    try {
+        const response = await fetch(`${API_ADDRESS}get_lectures_for?lector=${encodeURIComponent(lectorName)}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch lectures');
+        }
+        const lectures = await response.json();
+        console.log(lectures);
+        const mainContent = document.getElementById('main-content');
+        mainContent.innerHTML = ''; // Clear all content from main-content
+        generateFileBoxes(lectures);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function getLectors() {
+    try {
+        const response = await fetch(`${API_ADDRESS}get_lectors`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch lectors');
+        }
+        const lectors = await response.json();
+        console.log(lectors);
+        generateFolderBoxes(lectors);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     checkAPIStatus();
+
+    if (window.location.pathname.endsWith('lectors.html')) {
+        getLectors();
+    }
 });
+
