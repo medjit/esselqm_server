@@ -58,17 +58,30 @@ function generateFileBoxes(files) {
         fileBox.classList.add('file-box');
 
         const thumbnail = document.createElement('img');
-        thumbnail.src = `data:image/png;base64,${file.thumbnail}`;
-        thumbnail.alt = `${file.name} thumbnail`;
+        if (file.data.image) {
+            // If file.data.image is already a base64 string, just use it directly
+            thumbnail.src = `data:image/png;base64,${file.data.image}`;
+        } else {
+            thumbnail.src = 'default-thumbnail.png'; // Fallback image if file.data.image is not available
+        }
+        thumbnail.alt = `${file.title} thumbnail`;
         fileBox.appendChild(thumbnail);
 
-        const name = document.createElement('h3');
-        name.textContent = file.name;
-        fileBox.appendChild(name);
+        const title = document.createElement('h3');
+        title.textContent = file.data.title;
+        fileBox.appendChild(title);
 
-        const size = document.createElement('p');
-        size.textContent = `Size: ${formatSize(file.size)}`;
-        fileBox.appendChild(size);
+        const artist = document.createElement('p');
+        artist.textContent = `Artist: ${file.data.artist}`;
+        fileBox.appendChild(artist);
+
+        const album = document.createElement('p');
+        album.textContent = `Album: ${file.data.album}`;
+        fileBox.appendChild(album);
+
+        const year = document.createElement('p');
+        year.textContent = `Year: ${file.data.year}`;
+        fileBox.appendChild(year);
 
         fileBox.addEventListener('click', () => {
             window.location.href = `audioplayer.html?file=${encodeURIComponent(file.path)}`;

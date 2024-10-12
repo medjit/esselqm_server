@@ -5,6 +5,7 @@ const serveIndex = require("serve-index");
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
+const id3 = require('node-id3');
 
 const app = express();
 const PORT = 3333;
@@ -74,6 +75,30 @@ app.get('/get_log', (req, res) => {
 
 //=============================== EsSelqm new frontend functions =================================
 
+function getMp3Data(filePath) {
+    return new Promise((resolve, reject) => {
+        id3.read(filePath, (err, tags) => {
+            if (err) {
+                return reject(err);
+            }
+
+            const mp3Data = {
+                album: tags.album || null,
+                artist: tags.artist || null,
+                comment: tags.comment || null,
+                partOfSet: tags.partOfSet || null,
+                genre: tags.genre || null,
+                title: tags.title || null,
+                trackNumber: tags.trackNumber || null,
+                year: tags.year || null,
+                image: tags.image ? tags.image.imageBuffer.toString('base64') : null
+            };
+
+            resolve(mp3Data);
+        });
+    });
+}
+
 app.get('/get_lectors', (req, res) => {
     const audioDir = path.join(__dirname, 'media_files', 'audio');
 
@@ -127,18 +152,25 @@ app.get('/get_lectures_for', (req, res) => {
         return res.status(404).send("Lector not found");
     }
 
-    fs.readdir(lectorDir, { withFileTypes: true }, (err, files) => {
+    fs.readdir(lectorDir, { withFileTypes: true }, async (err, files) => {
         if (err) {
             console.error("Error reading lector directory:", err);
             return res.status(500).send("Internal Server Error");
         }
 
-        const mp3Files = files
+        const mp3Files = await Promise.all(files
             .filter(dirent => dirent.isFile() && path.extname(dirent.name) === '.mp3')
-            .map(dirent => ({
+            .map(async dirent => {
+            const filePath = path.join('media_files', 'audio', lectorName, dirent.name);
+            const mp3Data = await getMp3Data(filePath);
+            console.log(mp3Data);
+            return {
                 name: dirent.name,
-                path: path.join('media_files', 'audio', lectorName, dirent.name)
-            }));
+                path: filePath,
+                data: mp3Data
+            };
+            })
+        );
 
         res.json(mp3Files);
     });
@@ -148,20 +180,21 @@ app.get('/get_random', (req, res) => {
     const amount = 10;
     const audioDir = path.join(__dirname, 'media_files', 'audio');
 
-    function getAllMp3Files(dir) {
+    async function getAllMp3Files(dir) {
         let results = [];
         const list = fs.readdirSync(dir, { withFileTypes: true });
-        list.forEach((file) => {
+        await Promise.all(list.map(async (file) => {
             const filePath = path.join(dir, file.name);
             if (file.isDirectory()) {
                 results = results.concat(getAllMp3Files(filePath));
             } else if (file.isFile() && path.extname(file.name) === '.mp3') {
                 results.push({
                     name: file.name,
-                    path: filePath.replace(__dirname, '').replace(/\\/g, '/')
+                    path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
+                    data: await getMp3Data(filePath)
                 });
             }
-        });
+        }));
         return results;
     }
 
