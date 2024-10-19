@@ -17,7 +17,7 @@ let logSize = 0;
 const server = app.listen(PORT, listening);
 
 function listening() {
-  console.log("Listening on port " + PORT + "...");
+  console.log(`Server is running at http://localhost:${PORT}`);
 }
 
 function logRequest(req, res, next) {
