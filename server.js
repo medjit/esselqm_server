@@ -6,6 +6,7 @@ const path = require("path");
 const os = require("os");
 const fs = require("fs");
 const id3 = require('node-id3');
+const { count } = require("console");
 
 const app = express();
 const PORT = 3333;
@@ -293,5 +294,21 @@ app.get('/search', (req, res) => {
     });
 
     res.json(results);
+});
+
+app.get('/print_scanned_mp3_files', (req, res) => {
+    initializeMp3Data();
+    let responseText = '';
+    for (let i = 0; i <= 65535; i++) {
+        const fileId = i.toString().padStart(5, '0');
+        const file = allMp3FilesData.find(file => path.basename(file.name, '.mp3') === fileId);
+        if (file) {
+            responseText += `${fileId} - ${file.data.artist || 'Unknown Artist'} - ${file.data.title || 'Unknown Title'}\n`;
+        } else {
+            responseText += `${fileId}\n`;
+        }
+    }
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(responseText);
 });
 //------------------------------- EsSelqm new frontend functions ---------------------------------
