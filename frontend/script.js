@@ -10,10 +10,10 @@ document.getElementById('hamburger').addEventListener('click', function () {
 
 document.getElementById('theme-toggle').addEventListener('click', function () {
    const body = document.body;
-   const currentTheme = body.classList.contains('novel-theme')
-      ? 'novel'
-      : 'storybook';
-   const newTheme = currentTheme === 'novel' ? 'storybook' : 'novel';
+   const currentTheme = body.classList.contains('light-theme')
+      ? 'light'
+      : 'dark';
+   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
    body.classList.remove(`${currentTheme}-theme`);
    body.classList.add(`${newTheme}-theme`);
    localStorage.setItem('theme', newTheme);
@@ -175,11 +175,11 @@ function generateFolderBoxes(folders) {
       //folderBox.appendChild(path);
 
       const fileCount = document.createElement('p');
-      fileCount.textContent = `Files: ${folder.fileCount}`;
+      fileCount.textContent = `Файлове: ${folder.fileCount}`;
       folderBox.appendChild(fileCount);
 
       const size = document.createElement('p');
-      size.textContent = `Size: ${formatSize(folder.size)}`;
+      size.textContent = `Общ размер: ${formatSize(folder.size)}`;
       folderBox.appendChild(size);
 
       // Add click event listener to folderBox
@@ -210,6 +210,7 @@ async function getLecturesForLector(lectorName) {
       }
       const lectures = await response.json();
       console.log(lectures);
+      
       const mainContent = document.getElementById('main-content');
       mainContent.innerHTML = ''; // Clear all content from main-content
       generateFileBoxes(lectures);
