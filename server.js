@@ -254,6 +254,29 @@ app.get('/get_mp3_data', async (req, res) => {
     }
 });
 
+app.get('/download_mp3', (req, res) => {
+    const fileId = req.query.id;
+    if (!fileId) {
+        return res.status(400).send("File ID is required");
+    }
+
+    const file = allMp3FilesData.find(file => path.basename(file.name, '.mp3') === fileId);
+    if (!file) {
+        return res.status(404).send("File not found");
+    }
+
+    const { artist, title } = file.data;
+    const newFileName = `${fileId} - ${artist || 'Unknown Artist'} - ${title || 'Unknown Title'}.mp3`;
+    const filePath = path.join(__dirname, file.path);
+
+    res.download(filePath, newFileName, (err) => {
+        if (err) {
+            console.error("Error downloading file:", err);
+            res.status(500).send("Internal Server Error");
+        }
+    });
+});
+
 app.get('/search', (req, res) => {
     const query = req.query.query;
     if (!query) {

@@ -124,8 +124,9 @@ function generateFileBoxes(files) {
       downloadButton.textContent = '▼ Изтегляне';
       downloadButton.addEventListener('click', () => {
          // Logic for downloading the file
-         window.location.href = `download.html?file=${encodeURIComponent(
-            file.path
+         const fileNameWithoutExtension = file.name.replace('.mp3', '');
+         window.location.href = `download_mp3?id=${encodeURIComponent(
+            fileNameWithoutExtension
          )}`;
       });
 
