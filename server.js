@@ -176,21 +176,23 @@ app.get('/get_lectures_for', (req, res) => {
 });
 
 app.get('/get_random', (_, res) => {
-    const amount = 10;
+    const amount = 33;
     const audioDir = path.join(__dirname, 'media_files', 'audio');
 
     async function getAllMp3Files(dir) {
         let results = [];
-        const list = fs.readdirSync(dir, { withFileTypes: true });
+        const list = await fs.promises.readdir(dir, { withFileTypes: true });
         await Promise.all(list.map(async (file) => {
             const filePath = path.join(dir, file.name);
             if (file.isDirectory()) {
-                results = results.concat(await getAllMp3Files(filePath));
+                const subDirResults = await getAllMp3Files(filePath);
+                results = results.concat(subDirResults);
             } else if (file.isFile() && path.extname(file.name) === '.mp3') {
+                const mp3Data = await getMp3Data(filePath);
                 results.push({
                     name: file.name,
                     path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
-                    data: await getMp3Data(filePath)
+                    data: mp3Data
                 });
             }
         }));
@@ -199,7 +201,16 @@ app.get('/get_random', (_, res) => {
 
     try {
         getAllMp3Files(audioDir).then(allMp3Files => {
-            const randomFiles = allMp3Files.sort(() => 0.5 - Math.random()).slice(0, amount);
+            console.log(allMp3Files.length);
+            const randomFiles = [];
+            const usedIndices = new Set();
+            while (randomFiles.length < amount && usedIndices.size < allMp3Files.length) {
+                const randomIndex = Math.floor(Math.random() * allMp3Files.length);
+                if (!usedIndices.has(randomIndex)) {
+                    usedIndices.add(randomIndex);
+                    randomFiles.push(allMp3Files[randomIndex]);
+                }
+            }
             res.json(randomFiles);
         }).catch(err => {
             console.error("Error scanning audio directory:", err);
