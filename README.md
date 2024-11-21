@@ -14,7 +14,11 @@ Follow these instructions to start the server and access the webpage.
 
 1. Open your terminal.
 2. Navigate to the project directory:
-3. Start the server by running:
+3. Run the following command to install the necessary npm packages:
+    ```sh
+    npm install
+    ```
+4. Start the server by running:
     ```sh
     node server.js
     ```
