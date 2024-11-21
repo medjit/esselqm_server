@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EsSelqm Books</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <button id="hamburger">&#9776;</button>
-        <div class="search-container">
-            <input type="text" placeholder="Search...">
-            <button type="button">Search</button>
-        </div>
-    </header>
-    <nav id="sidebar">
-        <button id="theme-toggle">Toggle Theme</button>
-        <ul>
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Книги | EsSelqm</title>
+      <link rel="stylesheet" href="style.css" />
+   </head>
+   <body class="light-theme">
+      <header>
+         <button id="hamburger">&#9776;</button>
+         <img src="./assets/logo/logo_light.svg" alt="EsSelqm-logo" />
+         <div class="search-container">
+            <input type="text" placeholder="Търсене..." />
+            <button type="button">Търсене</button>
+         </div>
+      </header>
+      <nav id="sidebar">
+         <ul>
             <li><a href="index.html">Начало</a></li>
             <li><a href="lectors.html">Лектори</a></li>
-            <li><a href="books.html">Книги</a></li>
+            <li class="active"><a href="books.html">Книги</a></li>
             <li><a href="about.html">За нас</a></li>
-        </ul>
-        <div class="quote">
-            <p>Добротата е език, който глухите могат да чуят, а слепите – да видят.</p>
+         </ul>
+         <div class="quote">
+            <p>
+               Добротата е език, който глухите могат да чуят, а слепите – да
+               видят.
+            </p>
             <p>~ Марк Твен</p>
-        </div>
-    </nav>
-    <main>
-        <div id="main-content">
-        </div>
-    </main>
-    <script src="script.js"></script>
-</body>
+            <button id="theme-toggle">Смени Тема</button>
+         </div>
+      </nav>
+      <main>
+         <div id="main-content"></div>
+      </main>
+      <script src="script.js"></script>
+   </body>
 </html>
