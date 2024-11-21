@@ -48,11 +48,11 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.pathname.endsWith('index.html') ||
       window.location.pathname === '/'
    ) {
-      getRandom();
+      getRandom(33);
    }
 
    if (window.location.pathname.endsWith('audioplayer.html')) {
-      getRandom();
+      getRandom(10);
    }
 
    if (window.location.pathname.endsWith('books.html')) {
@@ -137,9 +137,9 @@ function generateFileBoxes(files) {
 }
 
 //==================== Home ===================
-async function getRandom() {
+async function getRandom(amount = 33) {
    try {
-      const response = await fetch(`${API_ADDRESS}get_random`);
+      const response = await fetch(`${API_ADDRESS}get_random?amount=${amount}`);
       if (!response.ok) {
          throw new Error('Failed to fetch random data');
       }

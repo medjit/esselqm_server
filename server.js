@@ -99,6 +99,45 @@ function getMp3Data(filePath) {
     });
 }
 
+let allMp3FilesData = [];
+
+async function scanAllMp3Files(dir) {
+    let results = [];
+    const list = await fs.promises.readdir(dir, { withFileTypes: true });
+    await Promise.all(list.map(async (file) => {
+        const filePath = path.join(dir, file.name);
+        if (file.isDirectory()) {
+            const subDirResults = await scanAllMp3Files(filePath);
+            results = results.concat(subDirResults);
+        } else if (file.isFile() && path.extname(file.name) === '.mp3') {
+            const mp3Data = await getMp3Data(filePath);
+            results.push({
+                name: file.name,
+                path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
+                data: mp3Data
+            });
+        }
+    }));
+    return results;
+}
+
+async function initializeMp3Data() {
+    const audioDir = path.join(__dirname, 'media_files', 'audio');
+    try {
+        allMp3FilesData = await scanAllMp3Files(audioDir);
+        console.log(`Scanned ${allMp3FilesData.length} MP3 files.`);
+    } catch (err) {
+        console.error("Error scanning audio directory:", err);
+    }
+}
+
+// Scan all MP3 files when the server starts
+initializeMp3Data();
+
+app.get('/print_all_mp3_data', (req, res) => {
+    res.json(allMp3FilesData);
+});
+
 app.get('/get_lectors', (req, res) => {
     const audioDir = path.join(__dirname, 'media_files', 'audio');
 
@@ -146,78 +185,31 @@ app.get('/get_lectures_for', (req, res) => {
         return res.status(400).send("Lector name is required");
     }
 
-    const lectorDir = path.join(__dirname, 'media_files', 'audio', lectorName);
+    const filteredLectures = allMp3FilesData.filter(file => file.data.artist && file.data.artist.toLowerCase() === lectorName.toLowerCase());
 
-    if (!fs.existsSync(lectorDir) || !fs.statSync(lectorDir).isDirectory()) {
+    if (filteredLectures.length === 0) {
         return res.status(404).send("Lector not found");
     }
 
-    fs.readdir(lectorDir, { withFileTypes: true }, async (err, files) => {
-        if (err) {
-            console.error("Error reading lector directory:", err);
-            return res.status(500).send("Internal Server Error");
-        }
-
-        const mp3Files = await Promise.all(files
-            .filter(dirent => dirent.isFile() && path.extname(dirent.name) === '.mp3')
-            .map(async dirent => {
-            const filePath = path.join('media_files', 'audio', lectorName, dirent.name);
-            const mp3Data = await getMp3Data(filePath);
-            return {
-                name: dirent.name,
-                path: filePath,
-                data: mp3Data
-            };
-            })
-        );
-
-        res.json(mp3Files);
-    });
+    res.json(filteredLectures);
 });
 
-app.get('/get_random', (_, res) => {
-    const amount = 33;
-    const audioDir = path.join(__dirname, 'media_files', 'audio');
-
-    async function getAllMp3Files(dir) {
-        let results = [];
-        const list = await fs.promises.readdir(dir, { withFileTypes: true });
-        await Promise.all(list.map(async (file) => {
-            const filePath = path.join(dir, file.name);
-            if (file.isDirectory()) {
-                const subDirResults = await getAllMp3Files(filePath);
-                results = results.concat(subDirResults);
-            } else if (file.isFile() && path.extname(file.name) === '.mp3') {
-                const mp3Data = await getMp3Data(filePath);
-                results.push({
-                    name: file.name,
-                    path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
-                    data: mp3Data
-                });
-            }
-        }));
-        return results;
-    }
+app.get('/get_random', (req, res) => {
+    const amount = parseInt(req.query.amount) || 33;
 
     try {
-        getAllMp3Files(audioDir).then(allMp3Files => {
-            console.log(allMp3Files.length);
-            const randomFiles = [];
-            const usedIndices = new Set();
-            while (randomFiles.length < amount && usedIndices.size < allMp3Files.length) {
-                const randomIndex = Math.floor(Math.random() * allMp3Files.length);
-                if (!usedIndices.has(randomIndex)) {
-                    usedIndices.add(randomIndex);
-                    randomFiles.push(allMp3Files[randomIndex]);
-                }
+        const randomFiles = [];
+        const usedIndices = new Set();
+        while (randomFiles.length < amount && usedIndices.size < allMp3FilesData.length) {
+            const randomIndex = Math.floor(Math.random() * allMp3FilesData.length);
+            if (!usedIndices.has(randomIndex)) {
+                usedIndices.add(randomIndex);
+                randomFiles.push(allMp3FilesData[randomIndex]);
             }
-            res.json(randomFiles);
-        }).catch(err => {
-            console.error("Error scanning audio directory:", err);
-            res.status(500).send("Internal Server Error");
-        });
+        }
+        res.json(randomFiles);
     } catch (err) {
-        console.error("Error scanning audio directory:", err);
+        console.error("Error getting random files:", err);
         res.status(500).send("Internal Server Error");
     }
 });
