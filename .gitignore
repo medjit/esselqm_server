@@ -45,7 +45,3 @@ bower_components/
 
 # Windows
 Thumbs.db
-
-# Media files
-media_files/
-*.mp3
