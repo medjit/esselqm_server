@@ -31,13 +31,6 @@ async function checkAPIStatus() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-   //TODO: search not working
-   const searchContainer = document.querySelector('.search-container');
-   const searchInput = searchContainer.querySelector('input');
-   const searchButton = searchContainer.querySelector('button');
-   searchInput.disabled = true;
-   searchButton.disabled = true;
-
    checkAPIStatus();
 
    if (window.location.pathname.endsWith('lectors.html')) {
@@ -325,45 +318,39 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 //================= search ==================
-document
-   .querySelector('.search-container button')
-   .addEventListener('click', async function () {
-      const searchText = document.querySelector(
-         '.search-container input'
-      ).value;
-      if (searchText.trim() === '') {
-         return;
+async function search(query) {
+   if (query.length < 4) {
+      document.getElementById('main-content').innerHTML = '<p>Search query must be at least 4 characters long</p>';
+      return;
+   }
+   try {
+      const response = await fetch(`${API_ADDRESS}search?query=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+         throw new Error('Failed to fetch search results');
       }
+      const results = await response.json();
+      console.log(results);
+      const mainContent = document.getElementById('main-content');
+      mainContent.innerHTML = ''; // Clear previous results
 
-      try {
-         const response = await fetch(
-            `${API_ADDRESS}search?query=${encodeURIComponent(searchText)}`
-         );
-         if (!response.ok) {
-            throw new Error('Failed to fetch search results');
-         }
-         const searchResults = await response.json();
-         console.log(searchResults);
-         const mp3Files = searchResults.filter(
-            (result) => result.type === 'mp3'
-         );
-         const pdfFiles = searchResults.filter(
-            (result) => result.type === 'pdf'
-         );
-         const container = document.getElementById('main-content');
-         container.innerHTML = ''; // Clear any existing content
-         generateFileBoxes(mp3Files);
-         generatePDFBoxes(pdfFiles);
-      } catch (error) {
-         console.error('Error:', error);
+      if (results.length > 0) {
+         generateFileBoxes(results);
+      } else {
+         mainContent.innerHTML = '<p>No results found</p>';
       }
-   });
+   } catch (error) {
+      document.getElementById('main-content').innerHTML = '<p>Error fetching search results</p>';
+   }
+}
 
-document
-   .querySelector('.search-container input')
-   .addEventListener('keypress', function (event) {
-      if (event.key === 'Enter') {
-         event.preventDefault();
-         document.querySelector('.search-container button').click();
-      }
-   });
+document.getElementById('search-button').addEventListener('click', function () {
+   const query = document.getElementById('search-field').value;
+   search(query);
+});
+
+document.getElementById('search-field').addEventListener('keypress', function (e) {
+   if (e.key === 'Enter') {
+      const query = document.getElementById('search-field').value;
+      search(query);
+   }
+});

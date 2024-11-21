@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>За Нас | EsSelqm</title>
+      <title>Търсене | EsSelqm</title>
       <link rel="stylesheet" href="style.css" />
    </head>
    <body class="light-theme">
@@ -16,8 +16,8 @@
             <li><a href="index.html">Начало</a></li>
             <li><a href="lectors.html">Лектори</a></li>
             <li><a href="books.html">Книги</a></li>
-            <li><a href="search.html">Търсене</a></li>
-            <li class="active"><a href="about.html">За нас</a></li>
+            <li lass="active"><a href="search.html">Търсене</a></li>
+            <li><a href="about.html">За нас</a></li>
          </ul>
          <div class="quote">
             <p>
@@ -29,26 +29,11 @@
          </div>
       </nav>
       <main>
-         <div id="main-content">
-            <div class="about-us">
-               <p>
-                  <strong>EsSelqm</strong>
-                  is a platform dedicated to providing quality educational
-                  resources and fostering a community of learners.
-               </p>
-               <p>
-                  <strong> Our mission </strong>
-                  is to make learning accessible and enjoyable for everyone,
-                  regardless of their background or location.
-               </p>
-               <p>
-                  <strong> We offer</strong>
-                  a wide range of materials, including lectures, books, and
-                  interactive content, all designed to help you achieve your
-                  educational goals.
-               </p>
+            <div id="search-container"></div>
+                <input type="text" id="search-field" placeholder="Търсене..." />
+                <button id="search-button">Търси</button>
             </div>
-         </div>
+            <div id="main-content"></div>
       </main>
       <script src="script.js"></script>
    </body>
