@@ -6,7 +6,7 @@ const path = require("path");
 const os = require("os");
 const fs = require("fs");
 const id3 = require('node-id3');
-const { count } = require("console");
+const mp3Duration = require('mp3-duration');
 
 const app = express();
 const PORT = 3333;
@@ -75,27 +75,49 @@ app.get('/get_log', (req, res) => {
 });
 
 //=============================== EsSelqm new frontend functions =================================
-
-function getMp3Data(filePath) {
+function getDuration(filePath) {
     return new Promise((resolve, reject) => {
-        id3.read(filePath, (err, tags) => {
+        mp3Duration(filePath, (err, duration) => {
             if (err) {
                 return reject(err);
             }
 
-            const mp3Data = {
-                album: tags.album || null,
-                artist: tags.artist || null,
-                comment: tags.comment || null,
-                partOfSet: tags.partOfSet || null,
-                genre: tags.genre || null,
-                title: tags.title || null,
-                trackNumber: tags.trackNumber || null,
-                year: tags.year || null,
-                image: tags.image ? tags.image.imageBuffer.toString('base64') : null
-            };
+            const minutes = Math.floor(duration / 60);
+            const seconds = Math.floor(duration % 60);
+            const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
-            resolve(mp3Data);
+            resolve(durationString);
+        });
+    });
+}
+
+function getMp3Data(filePath) {
+    return new Promise((resolve, reject) => {
+        id3.read(filePath, async (err, tags) => {
+            if (err) {
+                return reject(err);
+            }
+
+            try {
+                const durationString = await getDuration(filePath);
+
+                const mp3Data = {
+                    album: tags.album || null,
+                    artist: tags.artist || null,
+                    comment: tags.comment || null,
+                    partOfSet: tags.partOfSet || null,
+                    genre: tags.genre || null,
+                    title: tags.title || null,
+                    trackNumber: tags.trackNumber || null,
+                    year: tags.year || null,
+                    image: tags.image ? tags.image.imageBuffer.toString('base64') : null,
+                    duration: durationString
+                };
+
+                resolve(mp3Data);
+            } catch (durationErr) {
+                reject(durationErr);
+            }
         });
     });
 }

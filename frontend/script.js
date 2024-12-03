@@ -41,11 +41,11 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.pathname.endsWith('index.html') ||
       window.location.pathname === '/'
    ) {
-      getRandom(33);
+      getRandom(35);
    }
 
    if (window.location.pathname.endsWith('audioplayer.html')) {
-      getRandom(10);
+      getRandom(11);
    }
 
    if (window.location.pathname.endsWith('books.html')) {
@@ -95,7 +95,7 @@ function generateFileBoxes(files) {
       cardInfo.appendChild(album);
 
       const year = document.createElement('p');
-      year.textContent = `Година: ${file.data.year}`;
+      year.textContent = `Времетраене: ${file.data.duration}`;
       cardInfo.appendChild(year);
 
       // Create div for actions (e.g., play and download buttons)
@@ -319,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //================= search ==================
 async function search(query) {
-   if (query.length < 4) {
-      document.getElementById('main-content').innerHTML = '<p>Search query must be at least 4 characters long</p>';
+   if (query.length < 3) {
+      document.getElementById('main-content').innerHTML = '<p>Search query must be at least 3 characters long</p>';
       return;
    }
    try {
