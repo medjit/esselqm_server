@@ -123,39 +123,50 @@ function getMp3Data(filePath) {
 }
 
 let allMp3FilesData = [];
+let isScanning = false;
 
-async function scanAllMp3Files(dir) {
-    let results = [];
+async function scanAllMp3FilesIncremental(dir) {
     const list = await fs.promises.readdir(dir, { withFileTypes: true });
-    await Promise.all(list.map(async (file) => {
+    for (const file of list) {
         const filePath = path.join(dir, file.name);
         if (file.isDirectory()) {
-            const subDirResults = await scanAllMp3Files(filePath);
-            results = results.concat(subDirResults);
+            await scanAllMp3FilesIncremental(filePath);
         } else if (file.isFile() && path.extname(file.name) === '.mp3') {
-            const mp3Data = await getMp3Data(filePath);
-            results.push({
-                name: file.name,
-                path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
-                data: mp3Data
-            });
+            try {
+                const mp3Data = await getMp3Data(filePath);
+                console.log("Scanned: " + file.name);
+                allMp3FilesData.push({
+                    name: file.name,
+                    path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
+                    data: mp3Data
+                });
+            } catch (err) {
+                console.error(`Error scanning file ${file.name}:`, err);
+            }
         }
-    }));
-    return results;
-}
-
-async function initializeMp3Data() {
-    const audioDir = path.join(__dirname, 'media_files', 'audio');
-    try {
-        allMp3FilesData = await scanAllMp3Files(audioDir);
-        console.log(`Scanned ${allMp3FilesData.length} MP3 files.`);
-    } catch (err) {
-        console.error("Error scanning audio directory:", err);
     }
 }
 
-// Scan all MP3 files when the server starts
-initializeMp3Data();
+async function initializeMp3DataIncremental() {
+    if (isScanning) {
+        console.log("Scanning is already in progress...");
+        return;
+    }
+    isScanning = true;
+
+    const audioDir = path.join(__dirname, 'media_files', 'audio');
+    try {
+        await scanAllMp3FilesIncremental(audioDir);
+        console.log(`Finished scanning ${allMp3FilesData.length} MP3 files.`);
+    } catch (err) {
+        console.error("Error during scanning:", err);
+    } finally {
+        isScanning = false;
+    }
+}
+
+// Trigger the incremental scan
+initializeMp3DataIncremental();
 
 app.get('/print_all_mp3_data', (req, res) => {
     res.json(allMp3FilesData);
@@ -319,7 +330,6 @@ app.get('/search', (req, res) => {
 });
 
 app.get('/print_scanned_mp3_files', (req, res) => {
-    initializeMp3Data();
     let responseText = '';
     for (let i = 0; i <= 65535; i++) {
         const fileId = i.toString().padStart(5, '0');
