@@ -51,6 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
    if (window.location.pathname.endsWith('books.html')) {
       getBooks();
    }
+
+   const savedTheme = localStorage.getItem('theme');
+   if (savedTheme) {
+      document.body.classList.add(`${savedTheme}-theme`);
+   } else {
+      document.body.classList.add('light-theme');
+   }
 });
 
 function generateFileBoxes(files) {
