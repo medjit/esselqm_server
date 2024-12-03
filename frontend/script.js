@@ -41,11 +41,11 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.pathname.endsWith('index.html') ||
       window.location.pathname === '/'
    ) {
-      getRandom(33);
+      getRandom(35);
    }
 
    if (window.location.pathname.endsWith('audioplayer.html')) {
-      getRandom(10);
+      getRandom(11);
    }
 
    if (window.location.pathname.endsWith('books.html')) {
