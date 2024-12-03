@@ -143,6 +143,16 @@ body.light-theme #sidebar {
    background-color: var(--secondary-bg-color);
 }
 
+body.light-theme .card-wrapper {
+   background-color: var(--secondary-bg-color);
+   color: var(--secondary-text-color);
+}
+
+body.dark-theme .card-wrapper {
+   background-color: var(--primary-bg-color);
+   color: var(--primary-text-color);
+}
+
 body.dark-theme #sidebar {
    background-color: var(--primary-bg-color);
 }
@@ -237,6 +247,8 @@ main {
    cursor: pointer;
    display: flex;
 }
+
+.card-wrapper
 
 .file-image {
    max-width: 150px; /* Limit the image width */

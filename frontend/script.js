@@ -95,7 +95,7 @@ function generateFileBoxes(files) {
       cardInfo.appendChild(album);
 
       const year = document.createElement('p');
-      year.textContent = `Времетраене: ${file.data.year}`;
+      year.textContent = `Времетраене: ${file.data.duration}`;
       cardInfo.appendChild(year);
 
       // Create div for actions (e.g., play and download buttons)
