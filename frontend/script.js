@@ -307,6 +307,8 @@ document.addEventListener('DOMContentLoaded', function () {
       audioPlayer.autoplay = true;
       audioPlayer.load();
       audioPlayer.play();
+      // Disable download option
+      audioPlayer.controlsList = 'nodownload';
 
       // Throttle requests to the server
       let lastRequestTime = 0;
