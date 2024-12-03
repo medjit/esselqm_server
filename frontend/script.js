@@ -319,8 +319,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //================= search ==================
 async function search(query) {
-   if (query.length < 4) {
-      document.getElementById('main-content').innerHTML = '<p>Search query must be at least 4 characters long</p>';
+   if (query.length < 3) {
+      document.getElementById('main-content').innerHTML = '<p>Search query must be at least 3 characters long</p>';
       return;
    }
    try {
