@@ -94,12 +94,8 @@ function generateFileBoxes(files) {
       cardInfo.appendChild(title);
 
       const artist = document.createElement('p');
-      artist.textContent = `Изпълнител: ${file.data.artist}`;
+      artist.textContent = file.data.artist;
       cardInfo.appendChild(artist);
-
-      const album = document.createElement('p');
-      album.textContent = `Албум: ${file.data.album}`;
-      cardInfo.appendChild(album);
 
       const year = document.createElement('p');
       year.textContent = `Времетраене: ${file.data.duration}`;
