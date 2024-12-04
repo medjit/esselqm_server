@@ -74,6 +74,7 @@ function getMp3Data(filePath) {
 
 let allMp3FilesData = [];
 let isScanning = false;
+let count = 0;
 
 async function scanAllMp3FilesIncremental(dir) {
     const list = await fs.promises.readdir(dir, { withFileTypes: true });
@@ -84,7 +85,8 @@ async function scanAllMp3FilesIncremental(dir) {
         } else if (file.isFile() && path.extname(file.name) === '.mp3') {
             try {
                 const mp3Data = await getMp3Data(filePath);
-                console.log("Scanned: " + file.name);
+                count++;
+                console.log(count + " - Scanned: " + file.name);
                 allMp3FilesData.push({
                     name: file.name,
                     path: filePath.replace(__dirname, '').replace(/\\/g, '/'),
