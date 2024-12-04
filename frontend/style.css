@@ -283,6 +283,13 @@ main {
    margin-bottom: 0.5rem;
 }
 
+audio {
+   width: 95%;
+   margin: 1rem;
+   box-sizing: border-box;
+   border: 1px solid var(--border-color);
+}
+
 /* Media queries for larger screens */
 @media (min-width: 480px) {
    .folder-box,
