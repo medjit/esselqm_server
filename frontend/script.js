@@ -105,16 +105,6 @@ function generateFileBoxes(files) {
       const actionsDiv = document.createElement('div');
       actionsDiv.classList.add('actions');
 
-      // Play button
-      const playButton = document.createElement('button');
-      playButton.textContent = '▶ Слушай';
-      playButton.addEventListener('click', () => {
-         window.location.href = `audioplayer.html?file=${encodeURIComponent(
-            file.path
-         )}`;
-      });
-      actionsDiv.appendChild(playButton);
-
       // Download button
       const downloadButton = document.createElement('button');
       downloadButton.textContent = '▼ Изтегляне';
@@ -125,8 +115,18 @@ function generateFileBoxes(files) {
             fileNameWithoutExtension
          )}`;
       });
-
       actionsDiv.appendChild(downloadButton);
+
+      // Play button
+      const playButton = document.createElement('button');
+      playButton.textContent = '▶ Слушай';
+      playButton.addEventListener('click', () => {
+         window.location.href = `audioplayer.html?file=${encodeURIComponent(
+            file.path
+         )}`;
+      });
+      actionsDiv.appendChild(playButton);
+
       cardInfo.appendChild(actionsDiv);
       cardWrapper.appendChild(cardInfo);
       container.appendChild(cardWrapper);
