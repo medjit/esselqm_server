@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function generateFileBoxes(files) {
    const container = document.getElementById('main-content');
-   //container.innerHTML = ''; // Clear any existing content
+   container.innerHTML = ''; // Clear any existing content
 
    files.forEach((file) => {
       const cardWrapper = document.createElement('div');
@@ -131,6 +131,16 @@ function generateFileBoxes(files) {
       cardWrapper.appendChild(cardInfo);
       container.appendChild(cardWrapper);
    });
+
+   // Add button with event listener
+   const randomButton = document.createElement('button');
+   randomButton.textContent = 'Още';
+   randomButton.id = 'load-more-btn';
+   randomButton.addEventListener('click', () => {
+      getRandom(33);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+   });
+   container.appendChild(randomButton);
 }
 
 //==================== Home ===================
