@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function () {
             audioAuthor.textContent = data.data.artist;
 
             const audioId = document.querySelector('.audio-id');
-            audioId.textContent = `ID: ${data.name}`;
+            audioId.textContent = `ID: ${data.name.replace('.mp3', '')}`;
 
             const downloadButton = document.querySelector('.download-button');
             downloadButton.addEventListener('click', () => {
@@ -323,14 +323,49 @@ document.addEventListener('DOMContentLoaded', function () {
                )}`;
             });
 
-            const shareButton = document.querySelector('.share-button');
-            shareButton.addEventListener('click', () => {
+            const shareButton = document.querySelector('.share-button');            
+            shareButton.addEventListener('click', async () => {
                const shareUrl = `${window.location.origin}/audioplayer.html?file=${encodeURIComponent(audioFile)}`;
-               navigator.clipboard.writeText(shareUrl).then(() => {
-                  alert('Share link copied to clipboard');
-               });
+   
+               if (navigator.share) {
+                  // Native sharing panel
+                  try {
+                     await navigator.share({
+                        title: 'Audio Player',
+                        text: 'Check out this audio file!',
+                        url: shareUrl,
+                     });
+                     console.log('Successful share');
+                  } catch (error) {
+                     console.error('Error using share:', error);
+                     alert('Sharing failed. Please try again.');
+                  }
+               } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                  // Clipboard fallback
+                  try {
+                     await navigator.clipboard.writeText(shareUrl);
+                     alert('Линкът за споделяне беше копиран в клипборда!');
+                  } catch (error) {
+                     console.error('Error copying link:', error);
+                     alert('Failed to copy link. Please try again.');
+                  }
+               } else {
+                  // Manual fallback for older browsers
+                  const manualCopyPrompt = document.createElement('textarea');
+                  manualCopyPrompt.value = shareUrl;
+                  document.body.appendChild(manualCopyPrompt);
+                  manualCopyPrompt.select();
+                  manualCopyPrompt.setSelectionRange(0, 99999); // For mobile devices
+                  
+                  try {
+                     const successful = document.execCommand('copy');
+                     alert(successful ? 'Линкът за споделяне беше копиран в клипборда!' : 'Failed to copy link. Please copy manually.');
+                  } catch (error) {
+                     alert('Copy to clipboard not supported. Please copy manually: ' + shareUrl);
+                  }
+                  document.body.removeChild(manualCopyPrompt);
+               }
             });
-            console.log('Audio Data:', data);
          })
          .catch((error) => {
             console.error('Error:', error);
