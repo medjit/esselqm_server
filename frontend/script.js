@@ -302,6 +302,35 @@ document.addEventListener('DOMContentLoaded', function () {
          .then((data) => {
             console.log(data);
             //TODO: previe on player image and some data if it useful
+            const audioThumbnail = document.querySelector('.audio-thumbnail');
+            audioThumbnail.src = `data:image/png;base64,${data.data.image}`;
+
+            const audioTitle = document.querySelector('.audio-title');
+            audioTitle.textContent = data.data.title;
+
+            const audioAuthor = document.querySelector('.audio-author');
+            audioAuthor.textContent = data.data.artist;
+
+            const audioId = document.querySelector('.audio-id');
+            audioId.textContent = `ID: ${data.name}`;
+
+            const downloadButton = document.querySelector('.download-button');
+            downloadButton.addEventListener('click', () => {
+               // Logic for downloading the file
+               const fileNameWithoutExtension = data.name.replace('.mp3', '');
+               window.location.href = `download_mp3?id=${encodeURIComponent(
+                  fileNameWithoutExtension
+               )}`;
+            });
+
+            const shareButton = document.querySelector('.share-button');
+            shareButton.addEventListener('click', () => {
+               const shareUrl = `${window.location.origin}/audioplayer.html?file=${encodeURIComponent(audioFile)}`;
+               navigator.clipboard.writeText(shareUrl).then(() => {
+                  alert('Share link copied to clipboard');
+               });
+            });
+            console.log('Audio Data:', data);
          })
          .catch((error) => {
             console.error('Error:', error);

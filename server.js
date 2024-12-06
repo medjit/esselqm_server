@@ -226,13 +226,13 @@ app.get('/get_mp3_data', async (req, res) => {
         return res.status(400).send("File path is required");
     }
 
-    const fullPath = path.join(__dirname, filePath);
-    if (!fs.existsSync(fullPath) || !fs.statSync(fullPath).isFile()) {
+    const file = allMp3FilesData.find(file => file.path === filePath);
+    if (!file) {
         return res.status(404).send("File not found");
     }
 
     try {
-        const mp3Data = await getMp3Data(fullPath);
+        const mp3Data = allMp3FilesData.find(file => file.path === filePath);
         res.json(mp3Data);
     } catch (err) {
         console.error("Error reading MP3 data:", err);
