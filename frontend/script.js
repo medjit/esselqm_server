@@ -289,83 +289,13 @@ async function getBooks() {
 document.addEventListener('DOMContentLoaded', function () {
    const urlParams = new URLSearchParams(window.location.search);
    const audioFile = urlParams.get('file');
+
    if (audioFile) {
-      fetch(
-         `${API_ADDRESS}get_mp3_data?filePath=${encodeURIComponent(audioFile)}`
-      )
-         .then((response) => {
-            if (!response.ok) {
-               throw new Error('Failed to fetch MP3 data');
-            }
-            return response.json();
-         })
+      fetchAudioData(audioFile)
          .then((data) => {
-            console.log(data);
-            //TODO: previe on player image and some data if it useful
-            const audioThumbnail = document.querySelector('.audio-thumbnail');
-            audioThumbnail.src = `data:image/png;base64,${data.data.image}`;
-
-            const audioTitle = document.querySelector('.audio-title');
-            audioTitle.textContent = data.data.title;
-
-            const audioAuthor = document.querySelector('.audio-author');
-            audioAuthor.textContent = data.data.artist;
-
-            const audioId = document.querySelector('.audio-id');
-            audioId.textContent = `ID: ${data.name.replace('.mp3', '')}`;
-
-            const downloadButton = document.querySelector('.download-button');
-            downloadButton.addEventListener('click', () => {
-               // Logic for downloading the file
-               const fileNameWithoutExtension = data.name.replace('.mp3', '');
-               window.location.href = `download_mp3?id=${encodeURIComponent(
-                  fileNameWithoutExtension
-               )}`;
-            });
-
-            const shareButton = document.querySelector('.share-button');            
-            shareButton.addEventListener('click', async () => {
-               const shareUrl = `${window.location.origin}/audioplayer.html?file=${encodeURIComponent(audioFile)}`;
-   
-               if (navigator.share) {
-                  // Native sharing panel
-                  try {
-                     await navigator.share({
-                        title: 'Audio Player',
-                        text: 'Check out this audio file!',
-                        url: shareUrl,
-                     });
-                     console.log('Successful share');
-                  } catch (error) {
-                     console.error('Error using share:', error);
-                     alert('Sharing failed. Please try again.');
-                  }
-               } else if (navigator.clipboard && navigator.clipboard.writeText) {
-                  // Clipboard fallback
-                  try {
-                     await navigator.clipboard.writeText(shareUrl);
-                     alert('Линкът за споделяне беше копиран в клипборда!');
-                  } catch (error) {
-                     console.error('Error copying link:', error);
-                     alert('Failed to copy link. Please try again.');
-                  }
-               } else {
-                  // Manual fallback for older browsers
-                  const manualCopyPrompt = document.createElement('textarea');
-                  manualCopyPrompt.value = shareUrl;
-                  document.body.appendChild(manualCopyPrompt);
-                  manualCopyPrompt.select();
-                  manualCopyPrompt.setSelectionRange(0, 99999); // For mobile devices
-                  
-                  try {
-                     const successful = document.execCommand('copy');
-                     alert(successful ? 'Линкът за споделяне беше копиран в клипборда!' : 'Failed to copy link. Please copy manually.');
-                  } catch (error) {
-                     alert('Copy to clipboard not supported. Please copy manually: ' + shareUrl);
-                  }
-                  document.body.removeChild(manualCopyPrompt);
-               }
-            });
+            updateAudioDetails(data);
+            setupDownloadButton(data.name);
+            setupShareButton(audioFile);
          })
          .catch((error) => {
             console.error('Error:', error);
@@ -377,24 +307,189 @@ document.addEventListener('DOMContentLoaded', function () {
       audioPlayer.autoplay = true;
       audioPlayer.load();
       audioPlayer.play();
-      // Disable download option
       audioPlayer.controlsList = 'nodownload';
 
-      // Throttle requests to the server
-      let lastRequestTime = 0;
-      const throttleInterval = 1000; // 1 second
+      // Check and resume progress
+      checkAndResumeProgress(audioPlayer, audioFile);
 
-      audioPlayer.ontimeupdate = function () {
-         const currentTime = Date.now();
-
-         if (currentTime - lastRequestTime > throttleInterval) {
-            // Only send a request if more than 1 second has passed
-            console.log('Send request to server now...');
-            lastRequestTime = currentTime;
-         }
-      };
+      // Save progress on timeupdate
+      audioPlayer.addEventListener('timeupdate', () =>
+         saveProgress(audioPlayer, audioFile)
+      );
    }
 });
+
+/**
+ * Fetches audio metadata from the server.
+ */
+async function fetchAudioData(audioFile) {
+   const response = await fetch(
+      `${API_ADDRESS}get_mp3_data?filePath=${encodeURIComponent(audioFile)}`
+   );
+   if (!response.ok) {
+      throw new Error('Failed to fetch MP3 data');
+   }
+   return await response.json();
+}
+
+/**
+ * Updates audio details (thumbnail, title, author, ID) in the DOM.
+ */
+function updateAudioDetails(data) {
+   const audioThumbnail = document.querySelector('.audio-thumbnail');
+   audioThumbnail.src = `data:image/png;base64,${data.data.image}`;
+
+   const audioTitle = document.querySelector('.audio-title');
+   audioTitle.textContent = data.data.title;
+
+   const audioAuthor = document.querySelector('.audio-author');
+   audioAuthor.textContent = data.data.artist;
+
+   const audioId = document.querySelector('.audio-id');
+   audioId.textContent = `ID: ${data.name.replace('.mp3', '')}`;
+}
+
+/**
+ * Sets up the download button functionality.
+ */
+function setupDownloadButton(fileName) {
+   const downloadButton = document.querySelector('.download-button');
+   downloadButton.addEventListener('click', () => {
+      const fileNameWithoutExtension = fileName.replace('.mp3', '');
+      window.location.href = `download_mp3?id=${encodeURIComponent(
+         fileNameWithoutExtension
+      )}`;
+   });
+}
+
+/**
+ * Sets up the share button functionality.
+ */
+function setupShareButton(audioFile) {
+   const shareButton = document.querySelector('.share-button');
+   shareButton.addEventListener('click', async () => {
+      const shareUrl = `${window.location.origin}/audioplayer.html?file=${encodeURIComponent(audioFile)}`;
+
+      if (navigator.share) {
+         try {
+            await navigator.share({
+               title: 'Audio Player',
+               text: 'Check out this audio file!',
+               url: shareUrl,
+            });
+            console.log('Successful share');
+         } catch (error) {
+            console.error('Error using share:', error);
+            alert('Sharing failed. Please try again.');
+         }
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+         try {
+            await navigator.clipboard.writeText(shareUrl);
+            alert('The share link has been copied to the clipboard!');
+         } catch (error) {
+            console.error('Error copying link:', error);
+            alert('Failed to copy link. Please try again.');
+         }
+      } else {
+         fallbackCopyToClipboard(shareUrl);
+      }
+   });
+}
+
+/**
+ * Fallback method to copy share URL manually.
+ */
+function fallbackCopyToClipboard(shareUrl) {
+   const manualCopyPrompt = document.createElement('textarea');
+   manualCopyPrompt.value = shareUrl;
+   document.body.appendChild(manualCopyPrompt);
+   manualCopyPrompt.select();
+   manualCopyPrompt.setSelectionRange(0, 99999); // For mobile devices
+
+   try {
+      const successful = document.execCommand('copy');
+      alert(successful ? 'The share link has been copied to the clipboard!' : 'Failed to copy link. Please copy manually.');
+   } catch (error) {
+      alert('Copy to clipboard not supported. Please copy manually: ' + shareUrl);
+   }
+   document.body.removeChild(manualCopyPrompt);
+}
+
+/**
+ * Checks if progress exists in localStorage and resumes playback.
+ */
+function checkAndResumeProgress(audioPlayer, audioFile) {
+   const savedProgress = localStorage.getItem(`audioProgress_${audioFile}`);
+
+   if (savedProgress) {
+      if (savedProgress === "listened") {
+         audioPlayer.currentTime = 0;
+         console.log('Starting playback from the beginning.');
+         return;
+      }
+      const currentTime = parseFloat(savedProgress);
+      if (askToResumeOrRestart(currentTime > 5 ? currentTime - 5 : currentTime)) {
+         audioPlayer.currentTime = currentTime > 5 ? currentTime - 5 : currentTime;
+         console.log(`Resuming playback from ${audioPlayer.currentTime} seconds.`);
+      } else {
+         audioPlayer.currentTime = 0;
+         console.log('Starting playback from the beginning.');
+      }
+   }
+}
+
+/**
+ * Asks the user whether to continue from the saved progress or start from the beginning.
+ * Adds a 7-second timer that defaults to "Cancel" if the user doesn't respond.
+ */
+function askToResumeOrRestart(currentTime) {
+   const minutes = Math.floor(currentTime / 60);
+   const seconds = Math.floor(currentTime % 60);
+   const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+   const message = `Искате ли да продължите от ${formattedTime}?`;
+   
+   let timer;
+   const promise = new Promise((resolve) => {
+       timer = setTimeout(() => {
+           resolve(false); // Default to "Cancel"
+       }, 7000);
+
+       const userResponse = confirm(message);
+       clearTimeout(timer);
+       resolve(userResponse);
+   });
+
+   return promise;
+}
+
+/**
+ * Saves playback progress to localStorage based on how much of the file is played.
+ */
+function saveProgress(audioPlayer, audioFile) {
+   const duration = audioPlayer.duration;
+   const currentTime = audioPlayer.currentTime;
+
+   if (!duration || isNaN(duration)) {
+      console.warn("Audio duration is not available yet.");
+      return; // Ensure duration is loaded before saving progress
+   }
+
+   const progressPercentage = (currentTime / duration) * 100;
+
+   if (progressPercentage < 5) {
+      // Less than 5% listened, do not save progress
+      localStorage.removeItem(`audioProgress_${audioFile}`);
+      console.log("Progress not saved. Listened less than 5% of the file.");
+   } else if (progressPercentage >= 95) {
+      // More than 95% listened, mark as 'listened'
+      localStorage.setItem(`audioProgress_${audioFile}`, "listened");
+      console.log("File marked as 'listened'.");
+   } else {
+      // Between 5% and 95%, save the current progress
+      localStorage.setItem(`audioProgress_${audioFile}`, currentTime);
+      console.log(`Progress saved at ${currentTime} seconds (${Math.round(progressPercentage)}%).`);
+   }
+}
 
 //================= search ==================
 async function search(query) {
