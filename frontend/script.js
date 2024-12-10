@@ -336,8 +336,27 @@ document.addEventListener('DOMContentLoaded', function () {
       audioPlayer.addEventListener('timeupdate', () =>
          saveProgress(audioPlayer, audioFile)
       );
+
+      // Play the next audio when the current one ends
+      audioPlayer.addEventListener('ended', playNext);
    }
 });
+
+   // Function to play the next audio file
+   function playNext() {
+      setTimeout(() => {
+         const urlParams = new URLSearchParams(window.location.search);
+         const currentFile = urlParams.get('file');
+         const currentFileNumber = parseInt(currentFile.match(/\d+/)[0], 10);
+         const nextFileNumber = currentFileNumber + 1;
+         const nextAudioFile = currentFile.replace(currentFileNumber, nextFileNumber);
+          if (nextAudioFile) {
+            window.location.href = `audioplayer.html?file=${encodeURIComponent(nextAudioFile)}`;
+          } else {
+            console.log('No next audio file found.');
+          }
+      }, 7000);
+   }
 
 /**
  * Fetches audio metadata from the server.
