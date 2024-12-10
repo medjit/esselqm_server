@@ -105,13 +105,24 @@ function generateFileBoxes(files) {
       const actionsDiv = document.createElement('div');
       actionsDiv.classList.add('actions');
 
-      // Check if the file is listened
-      const isListened = localStorage.getItem(`audioProgress_${file.path}`) === "listened";
-      if (isListened) {
-         const checkIcon = document.createElement('span');
-         checkIcon.textContent = '✔';
-         checkIcon.classList.add('check-icon');
-         actionsDiv.appendChild(checkIcon);
+      // Check if the file is listened or has a time record in localStorage
+      const progressKey = `audioProgress_${file.path}`;
+      const progressValue = localStorage.getItem(progressKey);
+
+      if (progressValue) {
+         const icon = document.createElement('span');
+         
+         if (progressValue === "listened") {
+            // Append the check symbol for "listened"
+            icon.textContent = '✔';
+            icon.classList.add('check-icon'); // Add class for styling
+         } else if (!isNaN(Number(progressValue))) {
+            // Append the clock symbol for time record
+            icon.textContent = '🕒';
+            icon.classList.add('clock-icon'); // Add class for styling
+         }
+         
+         actionsDiv.appendChild(icon);
       }
 
       // Download button
