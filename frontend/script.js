@@ -437,39 +437,11 @@ function checkAndResumeProgress(audioPlayer, audioFile) {
          return;
       }
       const currentTime = parseFloat(savedProgress);
-      if (askToResumeOrRestart(currentTime > 5 ? currentTime - 5 : currentTime)) {
-         audioPlayer.currentTime = currentTime > 5 ? currentTime - 5 : currentTime;
-         console.log(`Resuming playback from ${audioPlayer.currentTime} seconds.`);
-      } else {
-         audioPlayer.currentTime = 0;
-         console.log('Starting playback from the beginning.');
-      }
+      audioPlayer.currentTime = currentTime > 5 ? currentTime - 5 : currentTime;
+      console.log(`Resuming playback from ${audioPlayer.currentTime} seconds.`);
    }
 }
 
-/**
- * Asks the user whether to continue from the saved progress or start from the beginning.
- * Adds a 7-second timer that defaults to "Cancel" if the user doesn't respond.
- */
-function askToResumeOrRestart(currentTime) {
-   const minutes = Math.floor(currentTime / 60);
-   const seconds = Math.floor(currentTime % 60);
-   const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-   const message = `Искате ли да продължите от ${formattedTime}?`;
-   
-   let timer;
-   const promise = new Promise((resolve) => {
-       timer = setTimeout(() => {
-           resolve(false); // Default to "Cancel"
-       }, 7000);
-
-       const userResponse = confirm(message);
-       clearTimeout(timer);
-       resolve(userResponse);
-   });
-
-   return promise;
-}
 
 /**
  * Saves playback progress to localStorage based on how much of the file is played.
