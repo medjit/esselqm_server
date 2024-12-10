@@ -399,10 +399,10 @@ audio {
 .audio-buttons button {
    padding: 0.5rem 1rem;
    cursor: pointer;
-   border: 1px solid var(--border-color);
+   border: 1px solid black;
    border-radius: 5px;
-   background-color: var(--button-bg-color);
-   color: var(--primary-text-color);
+   background-color: var(--primary-text-color);
+   color: black;
 }
 
 .audio-buttons button:hover {
