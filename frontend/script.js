@@ -382,8 +382,8 @@ function setupShareButton(audioFile) {
       if (navigator.share) {
          try {
             await navigator.share({
-               title: 'Audio Player',
-               text: 'Check out this audio file!',
+               title: 'Esselqm',
+               text: 'Чуйте това:',
                url: shareUrl,
             });
             console.log('Successful share');
@@ -394,7 +394,7 @@ function setupShareButton(audioFile) {
       } else if (navigator.clipboard && navigator.clipboard.writeText) {
          try {
             await navigator.clipboard.writeText(shareUrl);
-            alert('The share link has been copied to the clipboard!');
+            alert('Линкът за споделяне е копиран в клипборда!');
          } catch (error) {
             console.error('Error copying link:', error);
             alert('Failed to copy link. Please try again.');
