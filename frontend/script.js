@@ -105,6 +105,15 @@ function generateFileBoxes(files) {
       const actionsDiv = document.createElement('div');
       actionsDiv.classList.add('actions');
 
+      // Check if the file is listened
+      const isListened = localStorage.getItem(`audioProgress_${file.path}`) === "listened";
+      if (isListened) {
+         const checkIcon = document.createElement('span');
+         checkIcon.textContent = '✔';
+         checkIcon.classList.add('check-icon');
+         actionsDiv.appendChild(checkIcon);
+      }
+
       // Download button
       const downloadButton = document.createElement('button');
       downloadButton.textContent = '▼ Изтегляне';
