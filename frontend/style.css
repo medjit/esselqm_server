@@ -372,6 +372,7 @@ audio {
    max-width: 100%;
    border-radius: 5px;
    margin-bottom: 1rem;
+   border: 1px solid black;
 }
 
 .audio-info {
