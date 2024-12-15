@@ -340,21 +340,40 @@ document.addEventListener('DOMContentLoaded', function () {
       // Play the next audio when the current one ends
       audioPlayer.addEventListener('ended', playNext);
    }
+
+   // Check localStorage for autoplay setting on load
+   const autoplayCheckbox = document.getElementById('autoplay-checkbox');
+   const savedAutoplaySetting = localStorage.getItem('autoplay');
+
+   if (savedAutoplaySetting !== null) {
+      autoplayCheckbox.checked = savedAutoplaySetting === 'true';
+   } else {
+      autoplayCheckbox.checked = true; // Default option
+   }
+
+   // Update localStorage when autoplay setting is changed
+   autoplayCheckbox.addEventListener('change', function () {
+      localStorage.setItem('autoplay', autoplayCheckbox.checked);
+   });
 });
 
    // Function to play the next audio file
    function playNext() {
+      
       setTimeout(() => {
-         const urlParams = new URLSearchParams(window.location.search);
-         const currentFile = urlParams.get('file');
-         const currentFileNumber = parseInt(currentFile.match(/\d+/)[0], 10);
-         const nextFileNumber = currentFileNumber + 1;
-         const nextAudioFile = currentFile.replace(currentFileNumber, nextFileNumber);
-          if (nextAudioFile) {
-            window.location.href = `audioplayer.html?file=${encodeURIComponent(nextAudioFile)}`;
-          } else {
-            console.log('No next audio file found.');
-          }
+         const autoplayCheckbox = document.getElementById('autoplay-checkbox');
+         if (autoplayCheckbox.checked) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentFile = urlParams.get('file');
+            const currentFileNumber = parseInt(currentFile.match(/\d+/)[0], 10);
+            const nextFileNumber = currentFileNumber + 1;
+            const nextAudioFile = currentFile.replace(currentFileNumber, nextFileNumber);
+            if (nextAudioFile) {
+               window.location.href = `audioplayer.html?file=${encodeURIComponent(nextAudioFile)}`;
+            } else {
+               console.log('No next audio file found.');
+            }
+         }
       }, 7000);
    }
 
