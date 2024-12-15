@@ -299,7 +299,7 @@ async function loadMp3DataFromFile() {
 // Load MP3 data from file on startup
 loadMp3DataFromFile();
 
-app.get('/print_all_mp3_data', (req, res) => {
+app.get('/getalldata', (req, res) => {
     res.json(allMp3FilesData);
 });
 
