@@ -419,7 +419,7 @@ audio {
    display: flex;
    align-items: center;
    gap: 0.5rem;
-   border: 1px solid var(--border-color);
+   border: 1px solid black;
    padding: 0.5rem;
    border-radius: 5px;
 }
