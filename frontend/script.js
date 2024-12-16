@@ -691,6 +691,8 @@ function fallbackCopyToClipboard(shareUrl) {
 function setupShareButton(audioFile) {
    // Select the share button element
    const shareButton = document.querySelector('.share-button');
+   //TODO: fix share functionality
+   shareButton.style.display = 'none';
    
    // Add click event listener to the share button
    shareButton.addEventListener('click', async () => {
