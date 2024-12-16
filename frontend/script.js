@@ -793,16 +793,21 @@ function saveProgress(audioPlayer, audioFile) {
    }
 }
 
+
    /**
-    * Plays the next audio file after a delay if the autoplay checkbox is checked.
+    * Plays the next audio file if the autoplay setting is enabled.
     * 
-    * This function waits for 7 seconds before checking the state of the autoplay checkbox.
-    * If the checkbox is checked, it retrieves the current audio file number from the URL,
-    * increments it to get the next file number, and then navigates to the next audio file.
+    * This function waits for 7 seconds before checking the autoplay setting.
+    * If the autoplay checkbox is checked, it finds the next audio file to play
+    * and initializes the audio player with the new file.
     * 
-    * @function
+    * The function assumes that the current audio player element has the class
+    * 'audio-player' and that the next audio file is contained within an element
+    * with the class 'card-wrapper'. The ID of the 'card-wrapper' element is used
+    * as the filename for the next audio file.
+    * 
+    * @function playNext
     */
-   //TODO: fix this function to shrink current player and play nex in the list.
    function playNext() {
       // Wait for 7 seconds before checking the autoplay setting
       setTimeout(() => {
@@ -810,20 +815,21 @@ function saveProgress(audioPlayer, audioFile) {
          const autoplayCheckbox = document.getElementById('autoplay-checkbox');
          // If the autoplay checkbox is checked
          if (autoplayCheckbox.checked) {
-            // Get the current audio file from the URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentFile = urlParams.get('file');
-            // Extract the current file number from the file name
-            const currentFileNumber = parseInt(currentFile.match(/\d+/)[0], 10);
-            // Increment the file number to get the next file number
-            const nextFileNumber = currentFileNumber + 1;
-            // Replace the current file number with the next file number in the file name
-            const nextAudioFile = currentFile.replace(currentFileNumber, nextFileNumber);
-            // If the next audio file exists, navigate to the next audio file
-            if (nextAudioFile) {
-               window.location.href = `audioplayer.html?file=${encodeURIComponent(nextAudioFile)}`;
+            // Get the current audio player element
+            const currentAudioPlayer = document.querySelector('.audio-player');
+            // Get the next sibling element of the current audio player
+            const nextCardWrapper = currentAudioPlayer.nextElementSibling;
+
+            // Check if the next sibling element exists and has the class 'card-wrapper'
+            if (nextCardWrapper && nextCardWrapper.classList.contains('card-wrapper')) {
+               // Get the ID of the next card wrapper, which is the filename of the next audio file
+               const newFilename = nextCardWrapper.id;
+               console.log('Next filename:', newFilename);
+               // Initialize the audio player with the new filename
+               init_player(newFilename);
             } else {
-               console.log('No next audio file found.');
+               // Log a message if there are no more files to play
+               console.log('No more files to play.');
             }
          }
       }, 7000);
