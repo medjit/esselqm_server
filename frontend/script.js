@@ -611,8 +611,8 @@ async function init_player(audioFile) {
    cardWrapper.classList.remove('card-wrapper');
    cardWrapper.classList.add('audio-player');
 
-   setupDownloadButton();
    const fileName = filepath.split('/').pop();
+   setupDownloadButton(fileName);
    setupShareButton(filepath);
    checkAndResumeProgress(audioPlayer, filepath);
 
