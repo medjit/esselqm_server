@@ -97,6 +97,20 @@ function generateFileBoxes(files) {
       cardWrapper.classList.add('card-wrapper');
       cardWrapper.id = file.name;
 
+      // Create a hidden paragraph element to store the file path
+      const filePathParagraph = document.createElement('p');
+      filePathParagraph.id = 'filepath';
+      filePathParagraph.style.display = 'none';
+      filePathParagraph.textContent = file.path;
+      cardWrapper.appendChild(filePathParagraph);
+
+      // Create a hidden paragraph element to store the file ID
+      const fileIdParagraph = document.createElement('p');
+      fileIdParagraph.id = 'file-id';
+      fileIdParagraph.style.display = 'none';
+      fileIdParagraph.textContent = file.data.partOfSet;
+      cardWrapper.appendChild(fileIdParagraph);
+
       // Create div for the image
       const imageDiv = document.createElement('div');
       imageDiv.classList.add('image');
@@ -474,7 +488,6 @@ function findAndCloseAudioPlayers() {
    
    // Iterate over the selected elements and log each one to the console
    cardWrapper.forEach((cardWrapper) => {
-      console.log(cardWrapper);
       cardWrapper.classList.remove('audio-player');
       cardWrapper.classList.add('card-wrapper');
 
@@ -498,17 +511,9 @@ async function init_player(audioFile) {
    if (cardWrapper) {
       cardWrapper.scrollIntoView({ behavior: 'smooth' });
    }
-   
-   try {
-      const response = await fetch(`${API_ADDRESS}get_mp3_data_by_name?filename=${encodeURIComponent(audioFile)}`);
-      if (!response.ok) {
-         throw new Error('Failed to fetch MP3 data by name');
-      }
-      data = await response.json();
-      console.log(data);
-   } catch (error) {
-      console.error('Error:', error);
-   }
+
+   const filePathElement = cardWrapper.querySelector('#filepath');
+   const filepath = filePathElement ? filePathElement.textContent : '';
 
    const elementsToHide = cardWrapper.querySelectorAll('.image, .card-info, .actions');
    elementsToHide.forEach(element => {
@@ -517,7 +522,8 @@ async function init_player(audioFile) {
    
 
    const audioThumbnail = document.createElement('img');
-   audioThumbnail.src = `data:image/png;base64,${data.data.image}`;
+   const imageElement = cardWrapper.querySelector('.image img');
+   audioThumbnail.src = imageElement ? imageElement.src : 'default-thumbnail.png';
    audioThumbnail.alt = 'Audio Thumbnail';
    audioThumbnail.classList.add('audio-thumbnail');
 
@@ -526,15 +532,18 @@ async function init_player(audioFile) {
 
    const audioTitle = document.createElement('h2');
    audioTitle.classList.add('audio-title');
-   audioTitle.textContent = data.data.title;
+   const cardInfoTitle = cardWrapper.querySelector('.card-info h3');
+   audioTitle.textContent = cardInfoTitle ? cardInfoTitle.textContent : 'Unknown Title';
 
    const audioAuthor = document.createElement('p');
    audioAuthor.classList.add('audio-author');
-   audioAuthor.textContent = data.data.artist;
+   const cardInfoArtist = cardWrapper.querySelector('.card-info p');
+   audioAuthor.textContent = cardInfoArtist ? cardInfoArtist.textContent : 'Unknown Artist';
 
    const audioId = document.createElement('p');
    audioId.classList.add('audio-id');
-   audioId.textContent = `ID: ${data.name.replace('.mp3', '')}`;
+   const fileIdParagraph = cardWrapper.querySelector('#file-id');
+   audioId.textContent = `ID: ${fileIdParagraph ? fileIdParagraph.textContent : 'Unknown ID'}`;
 
    audioInfo.appendChild(audioTitle);
    audioInfo.appendChild(audioAuthor);
@@ -582,14 +591,12 @@ async function init_player(audioFile) {
    audioButtons.appendChild(downloadButton);
    audioButtons.appendChild(shareButton);
 
-   const audioFile1 = data.path;
-
    const audioPlayer = document.createElement('audio');
    audioPlayer.controls = true;
    audioPlayer.controlsList = 'nodownload'; // Disable download option in controls
 
    const audioSource = document.createElement('source');
-   audioSource.src = audioFile1;
+   audioSource.src = filepath;
    audioSource.type = 'audio/mpeg';
 
    audioPlayer.appendChild(audioSource);
@@ -604,11 +611,12 @@ async function init_player(audioFile) {
    cardWrapper.classList.remove('card-wrapper');
    cardWrapper.classList.add('audio-player');
 
-   setupDownloadButton(data.name);
-   setupShareButton(audioFile1);
-   checkAndResumeProgress(audioPlayer, audioFile1);
+   setupDownloadButton();
+   const fileName = filepath.split('/').pop();
+   setupShareButton(filepath);
+   checkAndResumeProgress(audioPlayer, filepath);
 
-   audioPlayer.addEventListener('timeupdate', () => saveProgress(audioPlayer, audioFile1));
+   audioPlayer.addEventListener('timeupdate', () => saveProgress(audioPlayer, filepath));
    audioPlayer.addEventListener('ended', playNext);
 }
 

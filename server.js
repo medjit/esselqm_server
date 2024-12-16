@@ -486,34 +486,6 @@ app.get('/get_books', (_, res) => {
     });
 });
 
-// Endpoint to get MP3 data for a specific file
-app.get('/get_mp3_data', async (req, res) => {
-    // Get the file path from the query parameters
-    const filePath = req.query.filePath;
-    if (!filePath) {
-        // If no file path is provided, return a 400 Bad Request response
-        return res.status(400).send("File path is required");
-    }
-
-    // Find the MP3 file data in the global array by its path
-    const file = allMp3FilesData.find(file => file.path === filePath);
-    if (!file) {
-        // If the file is not found, return a 404 Not Found response
-        return res.status(404).send("File not found");
-    }
-
-    try {
-        // Respond with the MP3 file data as JSON
-        const mp3Data = allMp3FilesData.find(file => file.path === filePath);
-        res.json(mp3Data);
-    } catch (err) {
-        // Log any errors that occur during the process
-        console.error("Error reading MP3 data:", err);
-        // Respond with a 500 Internal Server Error status
-        res.status(500).send("Internal Server Error");
-    }
-});
-
 // Endpoint to get MP3 data for a specific file by its name
 app.get('/get_mp3_data_by_name', (req, res) => {
     // Get the file name from the query parameters
